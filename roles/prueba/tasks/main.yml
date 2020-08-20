@@ -1,0 +1,12 @@
+---
+# - name: play
+#   debug:
+#     msg: "Llegue a PRUEBA {{ hostvars[inventory_hostname]}}"
+
+- name: hostname
+  command: hostname
+  register: nombre
+
+- name: play
+  debug:
+    msg: "{{nombre}}"

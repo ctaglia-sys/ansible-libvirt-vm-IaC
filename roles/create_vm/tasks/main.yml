@@ -1,0 +1,71 @@
+---
+
+- name: check - existe imagen base
+  stat:
+    path: "{{default_image_path}}{{default_base_image}}"
+  register: base_image_exists
+
+- name: check - existe snap
+  stat:
+    path: "{{default_image_path}}{{default_vm_image_name}}.qcow2"
+  register: snap_image
+
+- name: check - existe vm
+  shell: 'virsh list --name --all | grep {{default_vm_name}}'
+  register: defined_virtual_machines
+  ignore_errors: true
+
+- name: create - vm
+  block:
+    - name: crear snap
+      command:
+        cmd: "qemu-img create -f qcow2 -b {{default_image_path}}{{default_base_image}} {{default_image_path}}{{default_vm_image_name}}.qcow2"
+      when: 
+        - base_image_exists.stat.exists
+        - not snap_image.stat.exists
+    # 
+    - name: create vm
+      command: >
+              virt-install --import
+              --name {{default_vm_name}}
+              --memory {{default_vm_ram}}
+              --vcpus {{default_vm_vcpus}}
+              --cpu host
+              --disk "{{default_image_path}}{{default_vm_image_name}}.qcow2"
+              --noautoconsole
+              --os-type="linux"
+              --os-variant="centos7.0"
+      register: create_vm_result
+  when: 
+    - defined_virtual_machines.rc != 0  # Creo la vm cuando no existe
+
+# - name: Print
+#   debug:
+#     msg: "{{create_vm_result}}"
+
+- name: Mensaje
+  debug:
+    msg: >
+        **************************************************
+        La maquina virtual "{{default_vm_name}}" Ya existe
+        **************************************************
+  when:
+    - defined_virtual_machines.rc == 0
+
+- name: retorno ip
+  shell: 'virsh domifaddr {{default_vm_name}} | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"'
+  register: vm_ip_address
+  retries: 3
+  delay: 5
+  until: vm_ip_address.stdout != ""
+  when:
+    - create_vm_result.rc == 0
+  ignore_errors: true
+
+- name: rc
+  debug:
+    msg: "{{vm_ip_address.stdout}}"
+
+# - name: seteo var
+#   set_fact:
+#   when: vm_ip is defined

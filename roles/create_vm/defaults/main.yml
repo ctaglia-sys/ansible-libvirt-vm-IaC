@@ -1,0 +1,8 @@
+---
+# defaults file for libvirt-vm
+default_image_path: "/var/lib/libvirt/images/"
+default_base_image: "c7_base.qcow2"
+default_vm_image_name: "kube_node4" 
+default_vm_name: "kube_node4"
+default_vm_ram: 2048
+default_vm_vcpus: 2

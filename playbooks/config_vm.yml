@@ -1,0 +1,12 @@
+- name: Hola
+  command: ip a
+  register: ipa
+
+- name: print
+  debug:
+    msg: "{{ipa}}"
+
+
+# - name: Hola
+#   debug:
+#     msg: "Hola PLAYBOOK {{vm_ip}}"

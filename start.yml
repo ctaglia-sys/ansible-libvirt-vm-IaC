@@ -1,0 +1,32 @@
+- hosts: localhost
+  gather_facts: false
+  vars:
+    - vm_ip: ""
+    - mi_mensaje: ""
+  tasks:
+    - name: "-include_role- create_vm"
+      include_role:
+        name: create_vm 
+  
+    - name: print
+      debug:
+        msg: "Mi variable IP: {{vm_ip}}"
+    
+#     - name: fact
+#       set_fact:
+#           mi_mensaje: "192.168.122.65"
+    
+#     - name: Add host to multiple groups
+#       add_host:
+#         hostname: "{{mi_mensaje}}"
+#         ansible_ssh_user: root
+#         ansible_password: "qwerty"
+#         groups: mivm
+
+# - hosts: mivm
+  
+#   gather_facts: true
+#   # roles:
+#   #   - { role: prueba }
+#   import_playbook: config_vm.yml
+
